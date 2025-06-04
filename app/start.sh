@@ -1,10 +1,18 @@
 #!/bin/bash
-
+chmod -R 777 /conf || true
 echo "CHECKING PLUGIN DEPENDENCIES..."
 export PYTHONUSERBASE=/conf/plugin_modules
 mkdir -p /conf/plugin_modules
 cd /apps/corpora/plugins
 find ./ -type f -name "requirements.txt" -exec pip3 install --user -r "{}" \;
+
+echo "Waiting for Elasticsearch to be ready..."
+until curl -s http://elastic:9200 >/dev/null; do
+  echo "Elasticsearch not ready, waiting 5s..."
+  sleep 5
+done
+
+echo "Elasticsearch is up!"
 
 if [ ! -f /apps/initialized ]; then
     echo "WAITING 60 SECONDS FOR DATABASES..."
